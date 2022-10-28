@@ -9,6 +9,8 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3
@@ -29,4 +31,4 @@ jobs:
           publish_dir: ./build
 
       - run: |
-          echo "The Codex deployed to https://budacom.github.io/the-codex" 
+          echo "The Codex deployed to https://budacom.github.io/the-codex"
