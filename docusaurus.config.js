@@ -8,8 +8,8 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 const config = {
   title: "Buda.com Codex",
   tagline: "Guías, estándares y otros de Buda.com",
-  url: "https://budacom.github.io/the-codex",
-  baseUrl: "/",
+  url: "https://budacom.github.io/",
+  baseUrl: "/the-codex/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.ico",
