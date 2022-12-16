@@ -119,7 +119,7 @@ describe("NewsBanner", () => {
 ```
 
 Por otra parte, si queremos sobrescribir la respuesta del request lo podemos hacer utilizando
-`server.use`. En este caso, para hacer uso del mock utilizamos la función `waitForRequest` para
+`server.use`. Se sugiere, que vaya acompañada de la función `waitForRequest` para
 esperar la respuesta del request y así validar algún cambio en el DOM:
 
 ```js title="src/features/news-banner/__tests__/index.spec.js"
