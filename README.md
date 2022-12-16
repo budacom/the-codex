@@ -1,6 +1,6 @@
 # Introducción
 
-Este es el codex de Buda.com. Acá encontrarás set de guías para Devs de [Buda.com](https://www.buda.com/chile) (y el mundo), acuerdos que tomamos para que nos comuniquemos mejor y mantengamos una misma cultura en el código y más allá.
+Este es el [codex](https://budacom.github.io/the-codex) de Buda.com. Acá encontrarás set de guías para Devs de [Buda.com](https://www.buda.com/chile) (y el mundo), acuerdos que tomamos para que nos comuniquemos mejor y mantengamos una misma cultura en el código y más allá.
 
 ## Créditos
 
