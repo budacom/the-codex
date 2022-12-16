@@ -1,12 +1,8 @@
 ---
-sidebar_position: 3
+sidebar_position: 1
 ---
 
-# Testing
-
-Convenciones y buenas prácticas que utilizamos para testing.
-
-## Ubicación de los archivos
+# Ubicación de los archivos
 
 Para el caso de los test unitarios utilizamos una forma con más acoplamiento, es decir, que los archivos de test
 se encuentren cercanos al código que queremos testear.
@@ -16,7 +12,7 @@ Utilizamos las carpetas `/__tests__` y `/__snapshots__` dentro de cada carpeta d
 de ruta: `/src/components/ComponentX/__tests__`.
 :::
 
-### Contexto
+## Contexto
 
 Si bien no existe un estándar único, hay un relativo consenso de que es mejor tener más acoplamiento, que menos.
 
@@ -41,7 +37,7 @@ Si bien no existe un estándar único, hay un relativo consenso de que es mejor 
   - ❌ Dificultad para encontrar tests específicos.
   - ❌ Poca visibilidad respecto a tests pendientes. Se está menos consciente de los tests.
 
-### ¿Cómo ordenamos los tests de los componentes? 🎯
+## ¿Cómo ordenamos los tests de los componentes? 🎯
 
 En cada carpeta de un componente (por ejemplo `/components/ComponentX`), tendremos una
 carpeta `/__tests__` que contiene los tests del componente, y de considerarse necesario,
