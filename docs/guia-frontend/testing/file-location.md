@@ -52,11 +52,12 @@ src
     ├── componentY.js
     ├── ...
     └── __tests__
-    |       ├── componentX.spec.js
-    |       ├── componentY.spec.js
-    |       └── ...
-    └── __snapshots__
-            ├── componentX.spec.js.snap
-            ├── componentY.spec.js.snap
+            ├── __snapshots__
+            |       ├── componentX.spec.js.snap
+            |       ├── componentY.spec.js.snap
+            |       └── ...
+            ├── componentX.spec.js
+            ├── componentY.spec.js
             └── ...
+
 ```
