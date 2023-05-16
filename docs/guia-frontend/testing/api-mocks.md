@@ -2,184 +2,141 @@
 sidebar_position: 2
 ---
 
-# Mocks de API calls
+# Mocks de API calls con MSW
 
-Para los mocks de API calls utilizamos la librería [Mock Service Worker](https://mswjs.io/) que nos permite hacer
-mocks de manera universal, que por una parte elimina la necesidad de tener que utilizar un mock para cada librería
-de request que tengamos y también simplifica la configuración.
+Para los mocks de API calls utilizamos la librería [Mock Service Worker](https://mswjs.io/), que nos permite hacer
+mocks de requests de manera universal, interceptando el request sin importar la librería que usemos para enviarlo. 
 
-## Ejemplo de uso 🔍
+Además de mocks de requests para el ambiente de test, MSW también nos permite hacer mocks de requests en nuestro ambiente local de desarrollo, lo cual puede ser útil para navegar el sitio sin tener que levantar todos los servicios del backend.
 
-En nuestro ejemplo tenemos un componente `<NewsBanner />` que representa un banner que ve el usuario al ingresar
-al sitio web y tiene un botón para cerrarlo o para dirigirnos a otra vista. Este componente debe ser presentado
-hasta un máximo de 3 veces al usuario:
+## Guía rápida 🏃‍♂️
+
+### Definir un handler 🎯 {#define-handler}
+
+Para añadir un mock de un request debes definir un handler usando la función `rest.get` o alguna otra dependiendo del método utilizado. Por ejemplo, el siguiente ejemplo hace que cualquier request a `/api/v2/user_metadata` retorne el valor indicado en la función `ctx.json`:
+
+```js title="userMetadata.js"
+import { rest } from "msw";
+
+export function mockUserMetadata() {
+  return rest.get('/api/v2/user_metadata', (req, res, ctx) => {
+    return res(
+      ctx.status(200),
+      ctx.json({
+        user_metadata: {
+          value: '{"count":3}',
+        },
+      }),
+    );
+  });
+}
+```
+
+Se recomienda dejar los mocks de requests en el mismo directorio y contar con un mismo archivo desde donde exportar todos nuestros request handlers.
+- En surbtc definimos los mocks en la carpeta [`spec/_javascript/react/mocks/handlers`](https://github.com/budacom/surbtc/tree/master/spec/_javascript/react/mocks/handlers) y los exponemos desde el archivo [`spec/_javascript/react/mocks/handlers.js`](https://github.com/budacom/surbtc/blob/master/spec/_javascript/react/mocks/handlers.js).
+- En buda-expo definimos los mocks en la carpeta [`src/mocks`](https://github.com/budacom/buda-expo/blob/master/src/mocks/handlers.js).
+
+Por lo tanto, luego de definir el handler deberás exportarlo desde el archivo correspondiente de la siguiente manera:
+
+```js title="handlers.js"
+import { mockUserMetadata } from './handlers/userMetadata';
+
+export const handlers = [
+  mockUserMetadata(),
+];
+```
+
+
+
+Para más detalles sobre `rest.get` y las equivalentes funciones para otros métodos, recomendamos leer [la documentación de MSW](https://mswjs.io/docs/api/rest).
+
+
+
+### Activar MSW en tests 🧪
+
+Podrás activar el mock definido usando `server.use` desde cualquier componente que use el request. Siguiendo el ejemplo:
+
+```js title="path/to/myTest.spec.js"
+import server from 'example/path/to/server';
+import { mockUserMetadata } from 'example/path/to/userMetadata';
+
+beforeEach(() => {
+  server.use(mockUserMetadata());
+});
+```
+
+En surbtc definimos `server` en `spec/_javascript/react/mocks/server.js`. En buda-expo lo definimos en `src/mocks/server.js`.
+
+### Activar MSW en ambiente de desarrollo 💻
+
+En surbtc la librería está configurada para activarse en el ambiente de desarrollo definiendo la siguiente variable de entorno:
+
+```env title=".env.local"
+MOCK_REQUESTS=true
+```
+
+Al agregar esta variable podrás navegar por el sitio usando los mocks que tenemos definidos. Tal como cuando se hacen requests de verdad, podrás ver los requests y respuestas en la pestaña Network de las dev tools del navegador. 
+
+
+## Ejemplo en detalle 🔍
+
+Digamos que tenemos un componente `<NewsBanner />` con un mensaje que ve el usuario al ingresar
+al sitio web que se debe presentar hasta un máximo de 3 veces, y este valor está dado por un request al endpoint `/user_metadata`:
 
 ```tsx title="src/features/news-banner/index.tsx"
 const NewsBanner = () => {
-  // ...
+  // aquí enviamos un request a /user_metadata
+  // y retornamos null si el valor recibido es mayor a 3
   return (
-    <div>
+    <div
+      testID="news-banner"
+    >
       // ...
-      <Button
-        // ...
-        onPress={...}
-        testID="news-banner-close"
-      />
-      <Button
-        // ...
-        onPress={...}
-        testID="news-banner-yes"
-      />
     </div>
   );
 };
 ```
 
-### Definición de un mock 🎯
+Entonces para poder testear este componente o usarlo en local podemos construir un mock como [el que definimos antes](#define-handler).
 
-Se recomienda dejar los mocks de requests en el mismo directorio, en nuestro caso `src/mocks`. Y asimismo, contar con un
-archivo donde tener todos nuestros request handlers, en nuestro caso `src/mocks/handlers.js`.
+### Esperar respuesta
 
-► **Request handlers**
 
-Para el caso de api REST podemos simular cualquier tipo de request `rest`: `get`, `post`, `put`, `patch` o `delete`.
-Al mockear estas requests podremos capturar cualquier solicitud y especificar qué respuesta devolver.
-
-```js title="src/mocks/handlers.js"
-// highlight-start
-import { rest } from "msw";
-// highlight-end
-
-export const handlers = [
-  // Handles a POST /login request
-  // highlight-start
-  rest.post("/login", null),
-  // highlight-end
-];
-```
-
-► **Response resolver**
-
-Para manejar una request capturada, especificamos una response simulada mediante una función. La función que resuelve
-la response puede recibir los siguientes argumentos:
-
-- `req`, información del request: `get`, `post`, etc.,
-- `res`, para crear el mock de la response,
-- `ctx`, un conjunto de funciones para setear: `status`, `headers`, `body`, etc. del mock de la respuesta.
-
-```js title="src/mocks/handlers.js"
-import { apiBaseUrl } from "@/values/api";
-// highlight-start
-import { rest } from "msw";
-// highlight-end
-
-export const handlers = [
-  // Handles a GET /user_metadata request
-  // highlight-start
-  rest.get(`${apiBaseUrl}/user_metadata`, (req, res, ctx) =>
-    res(
-      ctx.json({
-        user_metadata: {
-          value: '{"count":2}',
-        },
-      })
-    )
-  ),
-  // highlight-end
-];
-```
-
-### Uso del mock 📝
-
-Si queremos utilizar la respuesta del request previamente definido en `src/mocks/handlers.js`
-y así validar algún cambio en el DOM, sólo es necesario esperar que se renderize el componente
-con `waitFor`:
+Si quieres utilizar la respuesta del request [previamente definido en el handler](#define-handler)
+y así validar algún cambio en el DOM, sólo es necesario esperar que se renderice el componente:
 
 ```js title="src/features/news-banner/__tests__/index.spec.js"
-// ...
-
-const renderComponent = () =>
-  render(
-    <MockRest>
-      <NewsBanner />
-    </MockRest>
-  );
-
 describe("NewsBanner", () => {
   it("displays when flag is active and user has seen the banner less than 3 times", async () => {
     const { getByTestId } = renderComponent();
 
-    // highlight-start
-    await waitFor(() => getByTestId("news-banner"));
+    await findByTestId("news-banner");
 
     expect(getByTestId("news-banner")).toBeTruthy();
-    // highlight-end
   });
 });
 ```
 
-Por otra parte, si queremos sobrescribir la respuesta del request lo podemos hacer utilizando
-`server.use`. Se sugiere, que vaya acompañada de la función `waitForRequest` para
-esperar la respuesta del request y así validar algún cambio en el DOM:
+### Sobreescribir respuesta
+
+Si quieres sobrescribir la respuesta del request definida en el archivo `handlers.js`, puedes volver a definirla al llamar a `server.use`.
 
 ```js title="src/features/news-banner/__tests__/index.spec.js"
-// ...
-
-const renderComponent = () =>
-  render(
-    <MockRest>
-      <NewsBanner />
-    </MockRest>
-  );
-
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
 describe("NewsBanner", () => {
-  it("does not shows when the user has seen the banner more than 3 times", async () => {
-    // highlight-start
+  context("when the user has seen the banner more than 3 times", async () => {
     server.use(
-      rest.get(`${apiBaseUrl}/user_metadata`, (req, res, ctx) =>
+      rest.get('/api/v2/user_metadata', (req, res, ctx) =>
         res(
           ctx.json({
             user_metadata: {
-              value: '{"count":3}',
+              value: '{"count":4}',
             },
           })
         )
       )
     );
-    // highlight-end
-
-    const { queryByTestId } = renderComponent();
-
-    // highlight-start
-    await act(async () => {
-      await waitForRequest("GET", "/user_metadata");
-      await sleep(100);
-    });
-
-    expect(queryByTestId("news-banner")).toBeNull();
-    // highlight-end
   });
 });
 ```
 
-:::info
-Al sobreescribir `rest.get` utilizando `server.use`, lo que hacemos es sobreescribir la respuesta por
-defecto que se encuentra definida en `src/mocks/handlers.js`:
-
-```js
-user_metadata: {
-  value: '{"count":2}',
-}
-```
-
-Y la cambiamos por:
-
-```js
-user_metadata: {
-  value: '{"count":3}',
-}
-```
-
-:::
+En buda-expo tenemos definido el helper [`overrideValue`](https://github.com/budacom/buda-expo/blob/master/src/mocks/helpers.jsx) que se encarga de llamar a `server.use` con los parámetros correspondientes.
