@@ -45,7 +45,7 @@ import { reactAngular } from '@/shared/utils/reactAngular';
 
 const NewUsersInstructions = (props: Props) => {
 
-// Cuando el usuario presiona el botón, le pedimos a angular que muestre el balanace
+// Cuando el usuario presiona el botón, le pedimos a angular que muestre el balance
  const hideBanner = () => {
     reactAngular('portfolio.toggleShowBalance', [true]);
   };
@@ -91,7 +91,7 @@ import { reactAngular, setOnModalHiddenCallbackFunction } from '@/shared/utils/r
 export const WaitingForApproval = () => {
   const [shouldShow, setShouldShow] = useState(false);
 
-  // 1
+  // definimos una referencia a la función que compartiremos para permitir que se mantenga constante entre ejecuciones
   const sharedFunctionCallback = useRef<setOnModalHiddenCallbackFunction>();
 
   useEffect(() => {
@@ -100,7 +100,7 @@ export const WaitingForApproval = () => {
       if (safeProcessAttemptId) setSafeProcessId(safeProcessAttemptId);
     };
 
-    // 2
+    // compartimos esta función con angular
     reactAngular('safeProcessAttempts.setOnModalHiddenCallback', [sharedFunctionCallback.current]);
   }, [setSafeProcessId]);
 
@@ -110,9 +110,6 @@ export const WaitingForApproval = () => {
 }
 ```
 
-En 1, definimos una referencia a la función que compartiremos para permitir que se mantenga constante entre ejecuciones
-
-En 2, compartimos esta función con angular
 
 Además, es necesario definir el tipo de la función a compartir
 
@@ -164,17 +161,17 @@ A continuación, es necesario editar el controlador de angular desde el cual lla
     ) {
         // helper donde guardaremos la config del bridge
         vm.reactAngularBridge = {
-        callback: null,
-        // Recibe el callback que definimos en react y lo guardam en una variable
-        setCallback: function (callback) {
-            vm.reactAngularBridge.callback = callback;
-        },
-        // función para hacer trigger del callback en un futuro
-        triggerCallback: function (value) {
-            if (typeof vm.reactAngularBridge.callback === 'function') {
-            vm.reactAngularBridge.callback(value);
-            }
-        },
+            callback: null,
+            // Recibe el callback que definimos en react y lo guarda en una variable
+            setCallback: function (callback) {
+                vm.reactAngularBridge.callback = callback;
+            },
+            // función para hacer trigger del callback en un futuro
+            triggerCallback: function (value) {
+                if (typeof vm.reactAngularBridge.callback === 'function') {
+                vm.reactAngularBridge.callback(value);
+                }
+            },
         };
         vm.requiresSafeProcessAttempt = false;
 
