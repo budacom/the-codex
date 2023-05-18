@@ -37,6 +37,7 @@ const config = {
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
           routeBasePath: "/",
+          editUrl: "https://github.com/budacom/the-codex/edit/master/"
         },
         blog: false,
         theme: {
