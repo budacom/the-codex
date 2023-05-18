@@ -73,6 +73,26 @@ type reactAngularServiceTypes = {
 }
 ```
 
+
+### Testing
+
+Para hacer pruebas unitarias de este código, podemos realizar un mock de reactAngular y validar si es llamado
+
+``` js title="NewUserInstructions.spec.js"
+jest.mock('@/shared/utils/reactAngular', () => ({
+  reactAngular: jest.fn(),
+}));
+
+ describe('when the user clicks on "Abonar Después" button', () => {
+    it('calls the shared function', () => {
+      const { getByText } = component();
+      const button = getByText('portfolio.new_user_instructions.deposit_later', { exact: false });
+      button.click();
+      expect(reactAngular).toHaveBeenCalledWith('portfolio.toggleShowBalance', [true]);
+    });
+ });
+```
+
 ## Ejecutar código de React desde angular
 
 A veces, vamos a necesitar ejecutar código de React en algún componente de angular, si bien esto también es posible de realizar, es un poco más complejo, dado que vamos a aprovecharnos del ejemplo anterior, para guardar la referencia a una función de React dentro de angular.
@@ -105,7 +125,7 @@ export const WaitingForApproval = () => {
   }, [setSafeProcessId]);
 
   if(!shouldShow) return null;
-  return (<div>the modal</div>);
+  return (<div data-testID="modal">the modal</div>);
   
 }
 ```
@@ -192,5 +212,29 @@ A continuación, es necesario editar el controlador de angular desde el cual lla
 
     }
 )
+
+```
+
+### Testing
+
+Para poder realizar los test unitarios, en este caso, sera necesario simular la logica del servicio react_angular_service de angular.
+
+```js title="WaitingForApproval.spec.js"
+
+const reactAngularServiceMemory = {};
+
+window.reactAngularService = {
+  'safeProcessAttempts.setOnModalHiddenCallback': jest.fn((callback) => {
+    reactAngularServiceMemory.setOnModalHiddenCallback = callback;
+  })
+};
+
+
+it("toggles the modal visible when called", () => {
+    const {queryByTestId} = renderComponent();
+    reactAngularServiceMemory.setOnModalHiddenCallback(true);
+    expect(queryByTestId('modal')).not.toBeNull();
+
+});
 
 ```
