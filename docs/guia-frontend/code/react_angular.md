@@ -201,7 +201,7 @@ A continuación, es necesario editar el controlador de angular desde el cual lla
         reactAngularBridge.setCallback
         );
 
-        // Luego de ejecutar alguna logica, llamamos a la función
+        // Luego de ejecutar alguna lógica, llamamos a la función
 
         reactAngularBridge.triggerCallback(
             {
@@ -217,8 +217,7 @@ A continuación, es necesario editar el controlador de angular desde el cual lla
 
 ### Testing
 
-Para poder realizar los test unitarios, en este caso, sera necesario simular la logica del servicio react_angular_service de angular.
-
+Para poder realizar los test unitarios, en este caso, será necesario simular la lógica del servicio react_angular_service de angular.
 ```js title="WaitingForApproval.spec.js"
 
 const reactAngularServiceMemory = {};
