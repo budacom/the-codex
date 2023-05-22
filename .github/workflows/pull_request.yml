@@ -1,0 +1,23 @@
+name: pull_request
+on:
+  pull_request:
+    branches:
+      - master
+    types: [opened, synchronize, edited, ready_for_review]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.sha }}
+  cancel-in-progress: true
+
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
+
+  block-fixup:
+    runs-on: ubuntu-latest
+    if: ${{ !github.event.pull_request.draft || contains(github.event.pull_request.body, '[run-block-fixup]') }}
+    steps:
+      - uses: actions/checkout@v2.0.0
+      - name: Block Fixup Commit Merge
+        uses: 13rac1/block-fixup-merge-action@v2.0.0
